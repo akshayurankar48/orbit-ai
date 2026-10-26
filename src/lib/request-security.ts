@@ -5,7 +5,7 @@ export function assertSameOrigin(request: Request, allowedOrigin: string) {
   const origin = request.headers.get("origin");
   const fetchSite = request.headers.get("sec-fetch-site");
   if (origin !== allowedOrigin || (fetchSite && fetchSite !== "same-origin")) {
-    throw new AppError("INVALID_ORIGIN", "This action must be requested from Launchpad.", 403);
+    throw new AppError("INVALID_ORIGIN", "This action must be requested from Orbit AI.", 403);
   }
 }
 

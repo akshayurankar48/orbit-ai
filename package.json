@@ -1,5 +1,5 @@
 {
-  "name": "launchpad",
+  "name": "orbit-ai",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "7.9.10",
+    "livekit-client": "^2.23.0",
+    "livekit-server-sdk": "^2.19.2",
     "lucide-react": "1.52.0",
     "next": "16.3.8",
     "react": "19.3.0",

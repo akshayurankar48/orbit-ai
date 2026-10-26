@@ -1,4 +1,4 @@
-# Launchpad
+# Orbit AI
 
 A small, fictional project-management app: sign in, name a workspace, pick a
 workflow, and get a four-stage board (Brief, Build, Review, Handoff) with sample
@@ -8,11 +8,14 @@ per account in a local SQLite database.
 It is built with Next.js, React, Clerk sign-in, and Node's built-in SQLite. There
 are no real invitations, payments, uploads, or customer data.
 
-This is the **starter** for the Synthesia Interactive Avatars build video. It is
-the app on its own, with no AI guide. Part 1 gets it running. Part 2 walks through
-adding the onboarding guide with a coding agent, Synthesia's skill and quickstart,
-and LiveKit. The product docs that the guide answers from are already here in
-[`docs/product`](docs/product).
+This is the **starter** for the Synthesia Interactive Avatars build video. It
+includes a male-voiced Synthesia onboarding guide in a bottom-right widget,
+backed by a separate Python LiveKit worker. The guide can navigate the app and
+add or move tasks through the real task controls, then reports success only
+after the save is confirmed. Part 1 gets the workspace app running. Part 2
+explains the guide's credentials and how the video extends it. Product answers
+use retrieval-augmented generation (RAG) over the Markdown files in
+[`docs/product`](docs/product); the avatar model is not fine-tuned.
 
 ## Part 1. Run the app
 
@@ -28,7 +31,7 @@ You need [Node 24](https://nodejs.org) or newer and a free [Clerk](https://go.cl
 
 2. Get your Clerk keys. [Sign up for Clerk](https://go.clerk.com/sonny), then in the Clerk dashboard create an application, open **API keys**, and copy the publishable key and secret key. Use the **development** keys.
 
-3. Copy `.env.example` to `.env.local` and paste the two keys in.
+3. Copy `.env.example` to `.env.local` and paste your Clerk development keys and LiveKit credentials in. The LiveKit credentials are used by the app's authenticated guide-token route.
 
    ```sh
    cp .env.example .env.local
@@ -45,9 +48,15 @@ You need [Node 24](https://nodejs.org) or newer and a free [Clerk](https://go.cl
 
 The database lives in `.data/launchpad.sqlite`, which is git-ignored. Each signed-in account has its own isolated workspace. To start over, open **Reset demo workspace** at the bottom of the board and type `RESET`.
 
-## Part 2. Add the AI onboarding guide
+## Part 2. Run and extend the AI onboarding guide
 
-This is the build from the video. A coding agent adds a talking Synthesia avatar that guides new users, clicks the real buttons, answers from the product docs, and adds and moves tasks.
+The guide talks users through workspace setup and can navigate the app using
+its real Setup, Preview, Board, List, People, and Help center buttons. In a
+saved project, it can add tasks with **New task** or move a uniquely identified
+task with **Move task**. It confirms either action only after the browser
+receives and validates the app's saved-task receipt. For factual product
+questions, the guide retrieves matching document passages and cites the source
+filename in its spoken answer.
 
 ### What you need
 
@@ -73,31 +82,51 @@ Sources: Synthesia's [Interactive Avatars page](https://www.synthesia.io/feature
 | LiveKit URL, API key, API secret | Create a free project on [LiveKit Cloud](https://cloud.livekit.io). It also runs Cartesia for speech, so you don't need a separate Cartesia key. |
 | Synthesia account | [Sign up for Synthesia Interactive Avatars](https://www.synthesia.io/features/avatars/interactive-avatars?utm_source=youtube&utm_medium=creator&utm_campaign=interactive_avatar_api&utm_content=sonny). |
 | Synthesia API key | [Create your API key](https://docs.synthesia.io/reference/synthesia-api-quickstart#create-your-api-key). Your plan needs Interactive Avatars. |
-| Synthesia avatar ID | In [Synthesia Studio](https://app.synthesia.io), open an avatar's ••• menu and choose **Copy Interactive ID**. Stock actor avatars such as Ryan or Ada don't work. |
+| Synthesia avatar | The guide uses the Kenji Interactive Avatar ID by default. Change `AVATAR_ID` in `agent/agent.py` only if your workspace has another usable Interactive Avatar ID. |
 | OpenAI API key | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
 
-Your coding agent will tell you which file each key goes in. Keep them in git-ignored env files, and never put a server secret in a `NEXT_PUBLIC_` variable.
+Keep `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET` in the root `.env.local` (or root `.env`); the app needs them to mint a room token. Copy `agent/.env.example` to `agent/.env` and put only `SYNTHESIA_API_KEY` and `OPENAI_API_KEY` there:
 
-### 3. Give your coding agent these prompts, in order
+```sh
+cp agent/.env.example agent/.env
+```
 
-The starting point is Synthesia's [minimal quickstart](https://docs.synthesia.io/reference/interactive-avatar-minimal-quickstart): a Python LiveKit agent with an avatar attached.
+The Python worker reads the root LiveKit env file and its own agent env file. Both `.env` files are git-ignored. Never put a server secret in a `NEXT_PUBLIC_` variable.
 
-1. > Use the synthesia-interactive-avatar skill, the LiveKit agent skills and Synthesia's minimal quickstart to add an onboarding guide to this app. Put the Python agent in its own agent folder, show the guide in a bottom-right widget, and give it a male voice.
-2. > When I ask to see part of the app, have the guide click the real buttons to show me.
-3. > Teach the guide how Launchpad works using the docs in the docs/product folder. It should only answer from those docs, say so when it doesn't know, and show which doc each answer came from.
-4. > Let the guide add tasks and move them between stages when I ask, using the New task and Move task buttons. It should only say it's done after the save succeeds.
+### 3. Try the guide's product-doc RAG
 
-Review what it builds after each prompt, and run the app before moving on. Your result won't match the video line for line, which is normal for a coding agent.
+The integration follows Synthesia's [minimal quickstart](https://docs.synthesia.io/reference/interactive-avatar-minimal-quickstart): a Python LiveKit agent with an avatar attached. The worker searches `docs/product` when the user asks a factual product question, passes the best-matching passages to the model, and instructs it to answer only from those passages. No vector database or model fine-tuning is involved.
+
+Two documents are synthetic fixtures for checking retrieval and citations:
+
+- `docs/product/07-rag-test-workspace.md`: Juniper & Finch Studio, Portland, 9 people, code **MINT-42**.
+- `docs/product/08-rag-test-project.md`: Moonlight Catalog, owned by Mara Vale, launches May 14, sample budget **3,400 demo credits**.
+
+After starting the app and guide, try asking:
+
+- "What's Juniper and Finch Studio's workspace code?" Expected: **MINT-42**, citing `07-rag-test-workspace.md`.
+- "How many people are on the Juniper and Finch team?" Expected: **9 people**, citing `07-rag-test-workspace.md`.
+- "Who owns the Moonlight Catalog project?" Expected: **Mara Vale**, citing `08-rag-test-project.md`.
+- "What's the Moonlight Catalog's sample budget?" Expected: **3,400 demo credits**, citing `08-rag-test-project.md`.
+- "Who won the 2040 moon cheese championship?" Expected: the guide says the product docs don't contain that information instead of guessing.
+
+These fixture facts are fictional and are not customer data. Add or update Markdown files in `docs/product` to change what the guide can retrieve; the worker reads documents on each search.
 
 Want to compare with the finished version from the video? It's at [launchpad-ai-guide](https://github.com/sonnysangha/launchpad-ai-guide).
 
 ### 4. Run it
 
-The Python agent is a separate worker that sits next to the app. The app gives your browser a LiveKit room, and the worker joins the same room and brings the avatar with it. Use two terminals:
+The Python agent is a separate worker that sits next to the app. The app gives your browser a LiveKit room, and the worker joins the same room and brings the avatar with it. Install the worker dependencies once:
 
 ```sh
-npm run dev                  # the app
-python agent/agent.py dev    # the guide (run inside the virtual environment your coding agent set up)
+uv sync --project agent
+```
+
+Then start the app and worker in separate terminals:
+
+```sh
+npm run dev
+uv run --project agent python agent/agent.py dev
 ```
 
 Open the board, start a conversation with the guide, and wait for its greeting. Then try:
@@ -128,11 +157,12 @@ Every conversation uses your LiveKit, Synthesia and OpenAI usage, so end the con
 | Path | What it is |
 | --- | --- |
 | `src/app` | Pages (landing, sign-in, onboarding, dashboard) and API routes |
-| `src/app/api` | `workspace` (create/read), `tasks` (add), `tasks/stage` (move), `reset` |
-| `src/components` | Onboarding form, board/list views, New task form, Move task panel |
+| `src/app/api` | `workspace` (create/read), `guide/token` (authenticated LiveKit room), `tasks` (add), `tasks/stage` (move), `reset` |
+| `src/components` | Onboarding form, bottom-right voice guide, board/list views, New task form, Move task panel |
+| `agent` | Separate Python LiveKit worker, product-doc retrieval, and agent tests |
 | `src/lib/store.ts` | SQLite store; every read and write is scoped to the signed-in user |
 | `src/lib/contracts.ts` | Shared input validation (zod) |
-| `docs/product` | Six short product docs describing how Launchpad works |
+| `docs/product` | Product handbook and two synthetic RAG test documents |
 | `DESIGN.md` | Visual design notes |
 
 Adding and moving tasks are idempotent: each save carries a request ID, so a

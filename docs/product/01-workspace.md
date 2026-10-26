@@ -4,7 +4,7 @@ title: Name your workspace
 version: 1.0.0
 keywords: workspace, business, company, studio, organization, name, onboarding, setup, help, faq, search
 ---
-Launchpad is a fictional client-project manager for a local demonstration. Use invented business and project names, never real customer information.
+Orbit AI is a fictional client-project manager for a local demonstration. Use invented business and project names, never real customer information.
 
 A workspace groups your sample project. Choose a business or workspace name between 2 and 80 characters.
 

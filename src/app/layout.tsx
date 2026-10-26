@@ -4,7 +4,7 @@ import { hasClerkConfiguration } from "@/lib/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Launchpad — a little clarity, a great start",
+  title: "Orbit AI — a little clarity, a great start",
   description: "A fictional project workspace for trying out new ideas.",
   robots: { index: false, follow: false },
 };

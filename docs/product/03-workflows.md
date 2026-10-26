@@ -4,7 +4,7 @@ title: Choose a workflow
 version: 1.0.0
 keywords: workflow, workflows, client, delivery, campaign, campaigns, choose, template, marketing
 ---
-Launchpad offers two workflow choices for the first sample project.
+Orbit AI offers two workflow choices for the first sample project.
 
 Client Delivery is for a fictional service or creative deliverable, such as a website or brand refresh. Its sample tasks help you define a brief, make the deliverable, review it, and prepare a handoff.
 

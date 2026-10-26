@@ -9,9 +9,10 @@ import { LaunchpadTabs } from "./LaunchpadTabs";
 import { ProjectTasks } from "./ProjectTasks";
 import { TaskComposer } from "./TaskComposer";
 import { TaskMover, type TaskMoverHandle } from "./TaskMover";
+import { OnboardingGuide } from "./OnboardingGuide";
 
 export function Dashboard({ workspace }: { workspace: Workspace }) {
-  useEffect(() => { document.title = `${workspace.projectName} | Launchpad`; }, [workspace.projectName]);
+  useEffect(() => { document.title = `${workspace.projectName} | Orbit AI`; }, [workspace.projectName]);
   const [activeTab, setActiveTab] = useState<DemoTab>("overview");
   const [tasks, setTasks] = useState(workspace.tasks);
   const [focusTask, setFocusTask] = useState<{ id: string; token: number } | null>(null);
@@ -45,7 +46,7 @@ export function Dashboard({ workspace }: { workspace: Workspace }) {
       <ProjectTasks tasks={tasks} focusTask={focusTask} projectName={workspace.projectName} view={activeTab === "workflow" ? "list" : "board"} onMoveTask={task => moverRef.current?.openFor(task)} moveDisabled={composerActive} />
     <details className="reset-panel"><summary><RotateCcw size={14} /> Reset demo workspace</summary><form onSubmit={resetWorkspace} noValidate aria-busy={resetting}><h2>Start this demo again</h2><p>This removes your workspace, project, and sample tasks. Your account stays signed in. Other users’ workspaces are untouched.</p><label htmlFor="reset-confirmation">Type RESET to confirm</label><div className="reset-controls"><input id="reset-confirmation" value={resetText} onChange={event => setResetText(event.target.value)} autoComplete="off" spellCheck={false} disabled={resetting} aria-describedby="reset-hint" /><button className="button button-danger" type="submit" disabled={resetText !== "RESET" || resetting}>{resetting ? <LoaderCircle className="spin" size={16} /> : <RotateCcw size={16} />}{resetting ? "Resetting workspace…" : "Reset my demo workspace"}</button></div><p id="reset-hint" className="reset-hint">This cannot be undone. Available in the local demo only.</p>{resetError && <p className="form-error" role="alert">{resetError}</p>}</form></details>
     </LaunchpadTabs>
-    </main></div>;
+    </main><OnboardingGuide /></div>;
 }
 
 export default Dashboard;

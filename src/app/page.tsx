@@ -16,7 +16,7 @@ export default async function Home() {
   return (
     <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px clamp(20px, 5vw, 64px) 72px" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20 }}>
-        <Link href="/" style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-.04em", textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}><Layers3 size={27} /> launchpad</Link>
+        <Link href="/" style={{ fontSize: 25, fontWeight: 700, letterSpacing: "-.04em", textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}><Layers3 size={27} /> Orbit AI</Link>
         <Link href={configured ? "/sign-in" : "/setup"}>Sign in <span aria-hidden="true">↗</span></Link>
       </header>
       <section style={{ paddingTop: "clamp(60px, 10vw, 136px)", maxWidth: 820 }}>

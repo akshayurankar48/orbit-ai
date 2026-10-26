@@ -5,7 +5,7 @@ import { UserButton } from "@clerk/nextjs";
 import { ArrowUpRight, ChevronRight } from "lucide-react";
 
 export function LaunchpadBrand() {
-  return <Link className="brand" href="/" aria-label="Launchpad home"><span className="brand-mark" aria-hidden="true"><ArrowUpRight size={23} strokeWidth={2.4} /></span><span>launchpad<span className="brand-period">.</span></span></Link>;
+  return <Link className="brand" href="/" aria-label="Orbit AI home"><span className="brand-mark" aria-hidden="true"><ArrowUpRight size={23} strokeWidth={2.4} /></span><span>Orbit AI<span className="brand-period">.</span></span></Link>;
 }
 
 export function AppHeader({ workspaceName }: { workspaceName?: string }) {

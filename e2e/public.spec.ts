@@ -15,4 +15,11 @@ test("public landing and protected routes enforce authentication", async ({ page
   expect(result.status()).toBe(401);
   expect(result.headers()["cache-control"]).toContain("no-store");
   expect(await result.text()).not.toContain("workspaceName");
+
+  const guideToken = await request.post("/api/guide/token", {
+    headers: { origin: new URL(page.url()).origin },
+    data: {},
+  });
+  expect(guideToken.status()).toBe(401);
+  expect(guideToken.headers()["cache-control"]).toContain("no-store");
 });

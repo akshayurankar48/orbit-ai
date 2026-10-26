@@ -3,6 +3,7 @@
 import { useEffect, useId, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from "react";
 import { ArrowRightLeft, Check, LoaderCircle, X } from "lucide-react";
 import { moveTaskReceiptSchema, stageSchema, type Stage, type Task } from "@/lib/contracts";
+import { publishGuideTaskSaved } from "@/lib/guide-task-actions";
 import styles from "./TaskMover.module.css";
 
 export type TaskMoverHandle = { openFor: (task: Task) => void };
@@ -33,6 +34,7 @@ export function TaskMover({ tasks, onMoved, moverRef, locked = false, children }
   const draftRef = useRef<MoveDraft>(empty);
   const requestIdRef = useRef("");
   const mounted = useRef(true);
+  const formRef = useRef<HTMLFormElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
   const stagesRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -79,6 +81,11 @@ export function TaskMover({ tasks, onMoved, moverRef, locked = false, children }
       if (!receipt.success || receipt.data.task.id !== sent.taskId || receipt.data.task.stage !== sent.stage || receipt.data.fromStage !== sent.fromStage) throw new Error("Invalid move receipt");
       const moved = receipt.data.task;
       onMoved(moved);
+      publishGuideTaskSaved(formRef.current?.dataset.guideRequestId, {
+        action: "move",
+        task: moved,
+        fromStage: receipt.data.fromStage,
+      });
       if (mounted.current) {
         setUncertain(false); setSuccess(`Moved “${moved.title}” from ${receipt.data.fromStage} to ${moved.stage}.`);
         // The trigger re-enables only after this save settles.
@@ -108,20 +115,20 @@ export function TaskMover({ tasks, onMoved, moverRef, locked = false, children }
 
   const selected = tasks.find(task => task.id === draft.taskId);
   const dismiss = () => { close(); triggerRef.current?.focus(); };
-  const trigger = <button ref={triggerRef} type="button" className={`button button-outline ${styles.trigger}`} aria-label="Move task" aria-expanded={open} aria-controls={open ? `${id}-panel` : undefined} title="Move a task to another stage" disabled={saving || locked || tasks.length === 0} onClick={() => openPanel("select")}><ArrowRightLeft size={15} /><span>Move task</span></button>;
+  const trigger = <button ref={triggerRef} data-guide-action="move-task" type="button" className={`button button-outline ${styles.trigger}`} aria-label="Move task" aria-expanded={open} aria-controls={open ? `${id}-panel` : undefined} title="Move a task to another stage" disabled={saving || locked || tasks.length === 0} onClick={() => openPanel("select")}><ArrowRightLeft size={15} /><span>Move task</span></button>;
   const panel = <>
-    {open && <form id={`${id}-panel`} className={styles.panel} aria-label="Move task" noValidate aria-busy={saving} onSubmit={event => { event.preventDefault(); void save(); }} onKeyDown={event => { if (event.key === "Escape" && !saving) { event.stopPropagation(); dismiss(); } }}>
+    {open && <form ref={formRef} id={`${id}-panel`} className={styles.panel} aria-label="Move task" noValidate aria-busy={saving} onSubmit={event => { event.preventDefault(); void save(); }} onKeyDown={event => { if (event.key === "Escape" && !saving) { event.stopPropagation(); dismiss(); } }}>
       <div className={styles.title}><h2><ArrowRightLeft size={15} /> Move task</h2><button type="button" className="icon-button" aria-label="Close move task" disabled={saving} onClick={dismiss}><X size={16} /></button></div>
       <label htmlFor={`${id}-task`}>Task</label>
-      <select ref={selectRef} id={`${id}-task`} value={draft.taskId} disabled={saving || uncertain} aria-describedby={`${id}-current`} onChange={event => { const next = tasks.find(task => task.id === event.target.value); change({ taskId: event.target.value, stage: next?.stage === draftRef.current.stage ? "" : draftRef.current.stage }); }}>
+      <select ref={selectRef} data-guide-field="task" id={`${id}-task`} value={draft.taskId} disabled={saving || uncertain} aria-describedby={`${id}-current`} onChange={event => { const next = tasks.find(task => task.id === event.target.value); change({ taskId: event.target.value, stage: next?.stage === draftRef.current.stage ? "" : draftRef.current.stage }); }}>
         <option value="" disabled>Choose a task…</option>
         {tasks.map((task, index) => <option key={task.id} value={task.id}>{`LP-${String(index + 1).padStart(2, "0")} · ${task.title}`}</option>)}
       </select>
       <p id={`${id}-current`} className={styles.current}>{selected ? `Currently in ${selected.stage}` : "Choose a task to see its stage."}</p>
       <p id={`${id}-stages`} className={styles.label}>Move to</p>
-      <div ref={stagesRef} className={styles.stages} role="group" aria-labelledby={`${id}-stages`}>{stages.map(stage => <button type="button" key={stage} aria-pressed={draft.stage === stage} disabled={saving || uncertain || !selected || selected.stage === stage} onClick={() => change({ stage })}>{stage}{selected?.stage === stage && <small>Current</small>}</button>)}</div>
+      <div ref={stagesRef} className={styles.stages} role="group" aria-labelledby={`${id}-stages`}>{stages.map(stage => <button data-guide-stage={stage} type="button" key={stage} aria-pressed={draft.stage === stage} disabled={saving || uncertain || !selected || selected.stage === stage} onClick={() => change({ stage })}>{stage}{selected?.stage === stage && <small>Current</small>}</button>)}</div>
       {error && <p className="form-error" role="alert">{error}</p>}
-      <div className={styles.footer}><span>Its name, details, and reference stay the same</span><button type="button" className="button button-outline" disabled={saving} onClick={dismiss}>Cancel</button><button type="submit" className="button button-primary" disabled={saving}>{saving ? <LoaderCircle className="spin" size={15} /> : <ArrowRightLeft size={15} />}{saving ? "Moving…" : uncertain ? "Retry move" : "Move task"}</button></div>
+      <div className={styles.footer}><span>Its name, details, and reference stay the same</span><button type="button" className="button button-outline" disabled={saving} onClick={dismiss}>Cancel</button><button data-guide-submit="move" type="submit" className="button button-primary" disabled={saving}>{saving ? <LoaderCircle className="spin" size={15} /> : <ArrowRightLeft size={15} />}{saving ? "Moving…" : uncertain ? "Retry move" : "Move task"}</button></div>
     </form>}
     {!open && success && <p className={styles.status}><Check size={15} /> <span role="status">{success}</span></p>}
   </>;

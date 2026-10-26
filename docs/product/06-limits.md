@@ -4,7 +4,7 @@ title: Demo limits and unsupported features
 version: 1.2.0
 keywords: limits, limit, unsupported, invite, invitations, email, payment, payments, billing, invoice, pricing, price, cost, integration, integrations, slack, export, csv, api, customer, client access, upload, publish, deploy, automation, calendar, deadline
 ---
-Launchpad is a fictional local demonstration, not a launched commercial service. Supported features include authenticated per-user workspace setup, an unsaved task Preview, a confirmed first sample project, Board and List views of its tasks, stage filtering, saved task creation and moving a task to another stage, a People page with a conceptual permission inspector, and a searchable Help center.
+Orbit AI is a fictional local demonstration, not a launched commercial service. Supported features include authenticated per-user workspace setup, an unsaved task Preview, a confirmed first sample project, Board and List views of its tasks, stage filtering, saved task creation and moving a task to another stage, a People page with a conceptual permission inspector, and a searchable Help center.
 
 It does not support real invitations, member management, client accounts, payments, billing, invoices, pricing plans, file upload or export, external integrations, automation, publishing, deployment, or delivery of customer work. It must not receive real customer information.
 

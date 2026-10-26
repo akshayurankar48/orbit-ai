@@ -5,10 +5,16 @@ import { parseEnv } from "node:util";
 
 // Values never leave this process. Reports contain variable names and paths only.
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const secretNames = ["CLERK_SECRET_KEY"];
+const secretNames = [
+  "CLERK_SECRET_KEY",
+  "LIVEKIT_API_KEY",
+  "LIVEKIT_API_SECRET",
+  "OPENAI_API_KEY",
+  "SYNTHESIA_API_KEY",
+];
 const envFiles = [
   ".env", ".env.local", ".env.development", ".env.development.local",
-  ".env.production", ".env.production.local",
+  ".env.production", ".env.production.local", "agent/.env",
 ];
 const bundleRoots = [".next/static", ".next/dev/static"];
 

@@ -29,11 +29,11 @@ components:
     rounded: "9px"
 ---
 
-# Launchpad design
+# Orbit AI design
 
 ## Overview
 
-Launchpad is a fictional project workspace for a local, authenticated product demonstration, presented as a compact application workspace. The reference is a focused project-management tool: a named project in the sidebar, real Board/List views of the same task dataset, People as a workspace destination, and Help center in the sidebar footer.
+Orbit AI is a fictional project workspace for a local, authenticated product demonstration, presented as a compact application workspace. The reference is a focused project-management tool: a named project in the sidebar, real Board/List views of the same task dataset, People as a workspace destination, and Help center in the sidebar footer.
 
 Authenticated screens use the product register. They must feel like a place to work, with useful content visible on entry. No large promotional headings, decorative eyebrows, invented activity, unsupported deadlines, or fabricated team members. The public landing page is a separate marketing surface.
 
